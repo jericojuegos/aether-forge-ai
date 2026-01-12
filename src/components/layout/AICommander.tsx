@@ -9,23 +9,28 @@ export const AICommander = () => {
     const [lastResponse, setLastResponse] = useState<string | null>(null);
     const {
         activeGenerator, setActiveGenerator,
-        updateShapeConfig, updatePlanetConfig, updateParticleConfig
+        updateShapeConfig, updatePlanetConfig, updateParticleConfig,
+        aiConfig
     } = useStore();
 
     const handleCommand = async () => {
         if (!prompt.trim()) return;
+        if (!aiConfig.apiKey) {
+            setLastResponse("Please enter a Gemini API Key in settings.");
+            return;
+        }
 
         setIsProcessing(true);
 
         try {
-            const result = await processAICommand(prompt, activeGenerator);
+            const result = await processAICommand(prompt, activeGenerator, aiConfig);
 
             if (result.intent !== activeGenerator && result.intent !== 'unknown') {
                 setActiveGenerator(result.intent);
             }
 
             if (result.configUpdate && Object.keys(result.configUpdate).length > 0) {
-                if (result.intent === 'shapes') updateShapeConfig(result.configUpdate);
+                if (result.intent === 'shapes' || result.intent === 'unknown') updateShapeConfig(result.configUpdate);
                 if (result.intent === 'planet') updatePlanetConfig(result.configUpdate);
                 if (result.intent === 'particles') updateParticleConfig(result.configUpdate);
             }

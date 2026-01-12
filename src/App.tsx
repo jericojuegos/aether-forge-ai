@@ -33,7 +33,7 @@ function Sidebar() {
           <Cpu size={22} />
         </div>
         <div>
-          <h1 className="logo-title">AETHERFORGE</h1>
+          <h1 className="logo-title">AETHERFORGE AI</h1>
           <p className="logo-subtitle">3D VISUALIZATION STUDIO</p>
         </div>
       </div>
@@ -383,33 +383,49 @@ function Controls() {
 }
 
 // ============ AI COMMANDER COMPONENT ============
+const MODEL_NAMES = [
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+  "gemini-flash-latest",
+  "gemini-pro"
+];
+
 function AICommander() {
   const [prompt, setPrompt] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastResponse, setLastResponse] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+
   const {
     activeGenerator, setActiveGenerator,
-    updateShapeConfig, updatePlanetConfig, updateParticleConfig, updateFluidConfig, updateNeuralConfig
+    updateShapeConfig, updatePlanetConfig, updateParticleConfig, updateFluidConfig, updateNeuralConfig,
+    aiConfig, updateAIConfig
   } = useStore();
 
   const handleCommand = async () => {
     if (!prompt.trim()) return;
+    if (!aiConfig.apiKey) {
+      setLastResponse("Please enter a Gemini API Key in settings first.");
+      setShowSettings(true);
+      return;
+    }
+
     setIsProcessing(true);
     try {
-      const result = await processAICommand(prompt, activeGenerator);
+      const result = await processAICommand(prompt, activeGenerator, aiConfig);
       if (result.intent !== activeGenerator && result.intent !== 'unknown') {
         setActiveGenerator(result.intent);
       }
       if (result.configUpdate && Object.keys(result.configUpdate).length > 0) {
-        if (result.intent === 'shapes') updateShapeConfig(result.configUpdate);
+        if (result.intent === 'shapes' || result.intent === 'unknown') updateShapeConfig(result.configUpdate);
         if (result.intent === 'planet') updatePlanetConfig(result.configUpdate);
         if (result.intent === 'particles') updateParticleConfig(result.configUpdate);
         if (result.intent === 'fluid') updateFluidConfig(result.configUpdate);
         if (result.intent === 'neural') updateNeuralConfig(result.configUpdate);
       }
       setLastResponse(result.message);
-    } catch {
-      setLastResponse("Systems offline. Please try again.");
+    } catch (err: any) {
+      setLastResponse(err.message || "Systems offline. Please verify API key and model.");
     } finally {
       setIsProcessing(false);
       setPrompt('');
@@ -418,6 +434,54 @@ function AICommander() {
 
   return (
     <div className="ai-section">
+      <div className="ai-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <p className="nav-label" style={{ marginBottom: 0 }}>AI ASSISTANT</p>
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className={`settings-toggle ${showSettings ? 'active' : ''}`}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: showSettings ? '#06b6d4' : 'rgba(255,255,255,0.4)',
+            cursor: 'pointer',
+            padding: '4px'
+          }}
+        >
+          <Sliders size={14} />
+        </button>
+      </div>
+
+      {showSettings && (
+        <div className="ai-settings-panel" style={{
+          background: 'rgba(255,255,255,0.03)',
+          padding: '12px',
+          borderRadius: '8px',
+          marginBottom: '12px',
+          border: '1px solid rgba(255,255,255,0.05)'
+        }}>
+          <div className="control-group">
+            <label style={{ fontSize: '10px' }}>GEMINI API KEY</label>
+            <input
+              type="password"
+              placeholder="Paste your key here..."
+              value={aiConfig.apiKey}
+              onChange={(e) => updateAIConfig({ apiKey: e.target.value })}
+              style={{ fontSize: '11px', padding: '6px' }}
+            />
+          </div>
+          <div className="control-group" style={{ marginBottom: 0 }}>
+            <label style={{ fontSize: '10px' }}>MODEL</label>
+            <select
+              value={aiConfig.modelName}
+              onChange={(e) => updateAIConfig({ modelName: e.target.value })}
+              style={{ fontSize: '11px', padding: '6px' }}
+            >
+              {MODEL_NAMES.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+        </div>
+      )}
+
       {lastResponse && (
         <div className="ai-response">
           <div className="ai-avatar">
@@ -437,11 +501,11 @@ function AICommander() {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleCommand()}
-          placeholder={`Describe your ${activeGenerator}...`}
+          placeholder={isProcessing ? "Processing..." : `Transform your ${activeGenerator}...`}
           disabled={isProcessing}
         />
         <button onClick={handleCommand} disabled={!prompt.trim() || isProcessing}>
-          <Send size={14} />
+          {isProcessing ? <RotateCw className="animate-spin" size={14} /> : <Send size={14} />}
         </button>
       </div>
     </div>

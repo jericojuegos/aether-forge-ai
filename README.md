@@ -1,73 +1,18 @@
-# React + TypeScript + Vite
+# AetherForge AI ☄️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**AetherForge AI** is a high-performance, generative 3D visualization studio that transforms natural language prompts into immersive, real-time 3D environments. Built for the modern AI era, it leverages the power of Google Gemini to give developers and artists intuitive control over complex procedural geometries, fluid simulations, and particle systems.
 
-Currently, two official plugins are available:
+### 🚀 Key Features
+- **Prompt-to-Scene**: Effortlessly switch generators and manipulate 3D parameters using natural language (powered by Gemini 2.0 Flash).
+- **High-Fidelity Generators**: Includes procedural planet shaders, real-time fluid dynamics, and pulsing neural networks.
+- **Triple-Platform Export**: Instantly generate production-ready code for **React (Three Fiber)**, **Vanilla Three.js**, and **WordPress**.
+- **Interactive Previews**: Real-time rendering with OrbitControls and custom GLSL shaders for zero-latency feedback.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🛠️ Tech Stack
+- **Frontend**: React 19, Three.js, @react-three/fiber, Framer Motion, Tailwind CSS.
+- **AI**: Google Generative AI (Gemini Pro/Flash) SDK integration.
+- **Backend Architecture**: Secure API key management (Client-side memory + ready for Express proxying).
+- **Core Logic**: Custom GLSL shaders, Procedural noise algorithms.
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+*Created for the next generation of creative technologists.*

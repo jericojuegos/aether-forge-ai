@@ -47,6 +47,11 @@ export interface NeuralConfig {
 }
 
 
+export interface AIConfig {
+    apiKey: string;
+    modelName: string;
+}
+
 interface AppState {
     activeGenerator: GeneratorType;
     shapeConfig: ShapeConfig;
@@ -56,6 +61,7 @@ interface AppState {
     neuralConfig: NeuralConfig;
     viewMode: 'visual' | 'code';
     codePlatform: 'react' | 'threejs' | 'wordpress';
+    aiConfig: AIConfig;
 }
 
 interface AppContextType extends AppState {
@@ -65,6 +71,7 @@ interface AppContextType extends AppState {
     updateParticleConfig: (update: Partial<ParticleConfig>) => void;
     updateFluidConfig: (update: Partial<FluidConfig>) => void;
     updateNeuralConfig: (update: Partial<NeuralConfig>) => void;
+    updateAIConfig: (update: Partial<AIConfig>) => void;
     toggleViewMode: () => void;
     setCodePlatform: (platform: 'react' | 'threejs' | 'wordpress') => void;
 }
@@ -120,12 +127,17 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
 
     const [viewMode, setViewMode] = useState<'visual' | 'code'>('visual');
     const [codePlatform, setCodePlatform] = useState<'react' | 'threejs' | 'wordpress'>('react');
+    const [aiConfig, setAIConfig] = useState<AIConfig>({
+        apiKey: '',
+        modelName: 'gemini-2.0-flash'
+    });
 
     const updateShapeConfig = (update: Partial<ShapeConfig>) => setShapeConfig(prev => ({ ...prev, ...update }));
     const updatePlanetConfig = (update: Partial<PlanetConfig>) => setPlanetConfig(prev => ({ ...prev, ...update }));
     const updateParticleConfig = (update: Partial<ParticleConfig>) => setParticleConfig(prev => ({ ...prev, ...update }));
     const updateFluidConfig = (update: Partial<FluidConfig>) => setFluidConfig(prev => ({ ...prev, ...update }));
     const updateNeuralConfig = (update: Partial<NeuralConfig>) => setNeuralConfig(prev => ({ ...prev, ...update }));
+    const updateAIConfig = (update: Partial<AIConfig>) => setAIConfig(prev => ({ ...prev, ...update }));
     const toggleViewMode = () => setViewMode(prev => prev === 'visual' ? 'code' : 'visual');
 
     return (
@@ -138,12 +150,14 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
             neuralConfig,
             viewMode,
             codePlatform,
+            aiConfig,
             setActiveGenerator,
             updateShapeConfig,
             updatePlanetConfig,
             updateParticleConfig,
             updateFluidConfig,
             updateNeuralConfig,
+            updateAIConfig,
             toggleViewMode,
             setCodePlatform
         }}>
