@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 
-export type GeneratorType = 'shapes' | 'planet' | 'particles';
+export type GeneratorType = 'shapes' | 'planet' | 'particles' | 'fluid';
 
 export interface ShapeConfig {
     geometryType: 'icosahedron' | 'sphere' | 'box' | 'torus' | 'octahedron';
@@ -25,11 +25,26 @@ export interface ParticleConfig {
     spread: number;
 }
 
+export interface FluidConfig {
+    simResolution: number;
+    dyeResolution: number;
+    densityDissipation: number;
+    velocityDissipation: number;
+    pressure: number;
+    curl: number;
+    splatRadius: number;
+    shading: boolean;
+    colorSpeed: number;
+    paused: boolean;
+}
+
+
 interface AppState {
     activeGenerator: GeneratorType;
     shapeConfig: ShapeConfig;
     planetConfig: PlanetConfig;
     particleConfig: ParticleConfig;
+    fluidConfig: FluidConfig;
     viewMode: 'visual' | 'code';
     codePlatform: 'react' | 'threejs' | 'wordpress';
 }
@@ -39,6 +54,7 @@ interface AppContextType extends AppState {
     updateShapeConfig: (update: Partial<ShapeConfig>) => void;
     updatePlanetConfig: (update: Partial<PlanetConfig>) => void;
     updateParticleConfig: (update: Partial<ParticleConfig>) => void;
+    updateFluidConfig: (update: Partial<FluidConfig>) => void;
     toggleViewMode: () => void;
     setCodePlatform: (platform: 'react' | 'threejs' | 'wordpress') => void;
 }
@@ -71,12 +87,26 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
         spread: 5,
     });
 
+    const [fluidConfig, setFluidConfig] = useState<FluidConfig>({
+        simResolution: 128,
+        dyeResolution: 1024,
+        densityDissipation: 3.5,
+        velocityDissipation: 2,
+        pressure: 0.8,
+        curl: 30,
+        splatRadius: 0.25,
+        shading: true,
+        colorSpeed: 10,
+        paused: false
+    });
+
     const [viewMode, setViewMode] = useState<'visual' | 'code'>('visual');
     const [codePlatform, setCodePlatform] = useState<'react' | 'threejs' | 'wordpress'>('react');
 
     const updateShapeConfig = (update: Partial<ShapeConfig>) => setShapeConfig(prev => ({ ...prev, ...update }));
     const updatePlanetConfig = (update: Partial<PlanetConfig>) => setPlanetConfig(prev => ({ ...prev, ...update }));
     const updateParticleConfig = (update: Partial<ParticleConfig>) => setParticleConfig(prev => ({ ...prev, ...update }));
+    const updateFluidConfig = (update: Partial<FluidConfig>) => setFluidConfig(prev => ({ ...prev, ...update }));
     const toggleViewMode = () => setViewMode(prev => prev === 'visual' ? 'code' : 'visual');
 
     return (
@@ -85,12 +115,14 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
             shapeConfig,
             planetConfig,
             particleConfig,
+            fluidConfig,
             viewMode,
             codePlatform,
             setActiveGenerator,
             updateShapeConfig,
             updatePlanetConfig,
             updateParticleConfig,
+            updateFluidConfig,
             toggleViewMode,
             setCodePlatform
         }}>

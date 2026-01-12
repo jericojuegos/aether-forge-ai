@@ -5,8 +5,9 @@ import { OrbitControls, Environment, Stars } from '@react-three/drei';
 import { InteractiveShape } from './components/generators/InteractiveShape';
 import { ProceduralPlanet } from './components/generators/ProceduralPlanet';
 import { ParticleField } from './components/generators/ParticleField';
+import { FluidSimulation } from './components/generators/FluidSimulation';
 import { CodePreview } from './components/layout/CodePreview';
-import { Box, Globe, Sparkles, Cpu, Send, Bot, Sliders, Palette, RotateCw, Zap, Code2 } from 'lucide-react';
+import { Box, Globe, Sparkles, Cpu, Send, Bot, Sliders, Palette, RotateCw, Zap, Code2, Droplets } from 'lucide-react';
 import { useState } from 'react';
 import { processAICommand } from './services/ai';
 import './index.css';
@@ -19,6 +20,7 @@ function Sidebar() {
     { id: 'shapes' as const, label: 'Shapes', icon: <Box size={18} /> },
     { id: 'planet' as const, label: 'Planet', icon: <Globe size={18} /> },
     { id: 'particles' as const, label: 'Particles', icon: <Sparkles size={18} /> },
+    { id: 'fluid' as const, label: 'Fluid', icon: <Droplets size={18} /> },
   ];
 
   return (
@@ -81,13 +83,15 @@ function Controls() {
     activeGenerator,
     shapeConfig, updateShapeConfig,
     planetConfig, updatePlanetConfig,
-    particleConfig, updateParticleConfig
+    particleConfig, updateParticleConfig,
+    fluidConfig, updateFluidConfig
   } = useStore();
 
   const titles: Record<string, string> = {
     shapes: 'Shape Controls',
     planet: 'Planet Controls',
-    particles: 'Particle Controls'
+    particles: 'Particle Controls',
+    fluid: 'Fluid Controls'
   };
 
   return (
@@ -261,6 +265,56 @@ function Controls() {
             </div>
           </>
         )}
+
+        {activeGenerator === 'fluid' && (
+          <>
+            <div className="control-group">
+              <div className="control-row">
+                <label>Curl Intensity</label>
+                <span className="control-value">{fluidConfig.curl}</span>
+              </div>
+              <input
+                type="range" min="1" max="100" step="1"
+                value={fluidConfig.curl}
+                onChange={(e) => updateFluidConfig({ curl: parseInt(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <div className="control-row">
+                <label>Splat Radius</label>
+                <span className="control-value">{fluidConfig.splatRadius.toFixed(2)}</span>
+              </div>
+              <input
+                type="range" min="0.01" max="1" step="0.01"
+                value={fluidConfig.splatRadius}
+                onChange={(e) => updateFluidConfig({ splatRadius: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <div className="control-row">
+                <label>Dissipation</label>
+                <span className="control-value">{fluidConfig.densityDissipation.toFixed(1)}</span>
+              </div>
+              <input
+                type="range" min="0.1" max="10" step="0.1"
+                value={fluidConfig.densityDissipation}
+                onChange={(e) => updateFluidConfig({ densityDissipation: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-checkbox">
+              <input
+                type="checkbox"
+                id="shading"
+                checked={fluidConfig.shading}
+                onChange={(e) => updateFluidConfig({ shading: e.target.checked })}
+              />
+              <label htmlFor="shading">Enable Shading</label>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -353,6 +407,26 @@ function SceneContent() {
   );
 }
 
+function MainCanvas() {
+  const { activeGenerator } = useStore();
+
+  if (activeGenerator === 'fluid') {
+    return <FluidSimulation />;
+  }
+
+  return (
+    <Canvas
+      camera={{ position: [0, 0, 8], fov: 45 }}
+      dpr={[1, 2]}
+      gl={{ antialias: true, alpha: true }}
+    >
+      <Suspense fallback={null}>
+        <SceneContent />
+      </Suspense>
+    </Canvas>
+  );
+}
+
 // ============ MAIN APP ============
 function App() {
   return (
@@ -369,15 +443,7 @@ function App() {
 
         {/* RIGHT PANEL: 3D Canvas */}
         <div className="right-panel">
-          <Canvas
-            camera={{ position: [0, 0, 8], fov: 45 }}
-            dpr={[1, 2]}
-            gl={{ antialias: true, alpha: true }}
-          >
-            <Suspense fallback={null}>
-              <SceneContent />
-            </Suspense>
-          </Canvas>
+          <MainCanvas />
         </div>
       </div>
     </StoreProvider>

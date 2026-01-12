@@ -3,12 +3,13 @@ import { useStore } from '../../store/StoreContext';
 import { generateReactCode } from '../../services/generators/reactGenerator';
 import { generateThreeJsCode } from '../../services/generators/threeJsGenerator';
 import { generateWordPressCode } from '../../services/generators/wordpressGenerator';
+import { generateFluidCode } from '../../services/generators/fluidGenerator';
 import { Clipboard, Check, X, Code2, Layers, Cpu, Globe, HelpCircle, ChevronRight, ChevronDown } from 'lucide-react';
 
 export const CodePreview: React.FC = () => {
     const {
         viewMode, toggleViewMode,
-        activeGenerator, shapeConfig, planetConfig, particleConfig,
+        activeGenerator, shapeConfig, planetConfig, particleConfig, fluidConfig,
         codePlatform, setCodePlatform
     } = useStore();
 
@@ -17,6 +18,11 @@ export const CodePreview: React.FC = () => {
     const [showInstructions, setShowInstructions] = useState(false);
 
     useEffect(() => {
+        if (activeGenerator === 'fluid') {
+            setCode(generateFluidCode(activeGenerator, fluidConfig, codePlatform));
+            return;
+        }
+
         const config = activeGenerator === 'shapes' ? shapeConfig :
             activeGenerator === 'planet' ? planetConfig : particleConfig;
 
@@ -27,7 +33,7 @@ export const CodePreview: React.FC = () => {
         } else {
             setCode(generateWordPressCode(activeGenerator, config));
         }
-    }, [activeGenerator, shapeConfig, planetConfig, particleConfig, codePlatform]);
+    }, [activeGenerator, shapeConfig, planetConfig, particleConfig, fluidConfig, codePlatform]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(code);
