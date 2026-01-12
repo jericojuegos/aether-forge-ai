@@ -1,24 +1,331 @@
 import { Suspense } from 'react';
-import { Layout } from './components/layout/Layout';
-import { AICommander } from './components/layout/AICommander';
-import { Controls } from './components/controls/Controls';
 import { StoreProvider, useStore } from './store/StoreContext';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Stars } from '@react-three/drei';
 import { InteractiveShape } from './components/generators/InteractiveShape';
 import { ProceduralPlanet } from './components/generators/ProceduralPlanet';
 import { ParticleField } from './components/generators/ParticleField';
+import { Box, Globe, Sparkles, Cpu, Send, Bot, Sliders, Palette, RotateCw, Zap } from 'lucide-react';
+import { useState } from 'react';
+import { processAICommand } from './services/ai';
+import './index.css';
 
+// ============ SIDEBAR COMPONENT ============
+function Sidebar() {
+  const { activeGenerator, setActiveGenerator } = useStore();
+
+  const navItems = [
+    { id: 'shapes' as const, label: 'Shapes', icon: <Box size={18} /> },
+    { id: 'planet' as const, label: 'Planet', icon: <Globe size={18} /> },
+    { id: 'particles' as const, label: 'Particles', icon: <Sparkles size={18} /> },
+  ];
+
+  return (
+    <div className="sidebar-section">
+      {/* Logo */}
+      <div className="logo-container">
+        <div className="logo-icon">
+          <Cpu size={22} />
+        </div>
+        <div>
+          <h1 className="logo-title">AETHERFORGE</h1>
+          <p className="logo-subtitle">3D VISUALIZATION STUDIO</p>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="nav-section">
+        <p className="nav-label">GENERATORS</p>
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveGenerator(item.id)}
+            className={`nav-button ${activeGenerator === item.id ? 'active' : ''}`}
+          >
+            <span className="nav-icon">{item.icon}</span>
+            <span>{item.label}</span>
+            {activeGenerator === item.id && <Zap size={12} className="nav-indicator" />}
+          </button>
+        ))}
+      </nav>
+
+      {/* Status */}
+      <div className="status-section">
+        <div className="status-indicator">
+          <div className="status-dot" />
+          <span>SYSTEM ONLINE</span>
+        </div>
+        <p className="version-text">AETHER CORE v2.0.1</p>
+      </div>
+    </div>
+  );
+}
+
+// ============ CONTROLS COMPONENT ============
+function Controls() {
+  const {
+    activeGenerator,
+    shapeConfig, updateShapeConfig,
+    planetConfig, updatePlanetConfig,
+    particleConfig, updateParticleConfig
+  } = useStore();
+
+  const titles: Record<string, string> = {
+    shapes: 'Shape Controls',
+    planet: 'Planet Controls',
+    particles: 'Particle Controls'
+  };
+
+  return (
+    <div className="controls-section">
+      <div className="controls-header">
+        <Sliders size={16} />
+        <h3>{titles[activeGenerator]}</h3>
+      </div>
+
+      <div className="controls-body">
+        {activeGenerator === 'shapes' && (
+          <>
+            <div className="control-group">
+              <label>Geometry</label>
+              <select
+                value={shapeConfig.geometryType}
+                onChange={(e) => updateShapeConfig({ geometryType: e.target.value as 'icosahedron' })}
+              >
+                <option value="icosahedron">Icosahedron</option>
+                <option value="sphere">Sphere</option>
+                <option value="box">Box</option>
+                <option value="torus">Torus</option>
+                <option value="octahedron">Octahedron</option>
+              </select>
+            </div>
+
+            <div className="control-group">
+              <div className="control-row">
+                <label>Size</label>
+                <span className="control-value">{shapeConfig.size.toFixed(1)}</span>
+              </div>
+              <input
+                type="range" min="0.5" max="3" step="0.1"
+                value={shapeConfig.size}
+                onChange={(e) => updateShapeConfig({ size: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <label><Palette size={12} /> Color</label>
+              <input
+                type="color"
+                value={shapeConfig.color}
+                onChange={(e) => updateShapeConfig({ color: e.target.value })}
+              />
+            </div>
+
+            <div className="control-checkbox">
+              <input
+                type="checkbox"
+                id="wireframe"
+                checked={shapeConfig.wireframe}
+                onChange={(e) => updateShapeConfig({ wireframe: e.target.checked })}
+              />
+              <label htmlFor="wireframe">Wireframe Mode</label>
+            </div>
+
+            <div className="control-checkbox">
+              <input
+                type="checkbox"
+                id="autoRotate"
+                checked={shapeConfig.autoRotate}
+                onChange={(e) => updateShapeConfig({ autoRotate: e.target.checked })}
+              />
+              <label htmlFor="autoRotate"><RotateCw size={14} /> Auto Rotate</label>
+            </div>
+          </>
+        )}
+
+        {activeGenerator === 'planet' && (
+          <>
+            <div className="control-group">
+              <div className="control-row">
+                <label>Detail Level</label>
+                <span className="control-value">{planetConfig.detail}</span>
+              </div>
+              <input
+                type="range" min="4" max="60" step="2"
+                value={planetConfig.detail}
+                onChange={(e) => updatePlanetConfig({ detail: parseInt(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <div className="control-row">
+                <label>Water Level</label>
+                <span className="control-value">{(planetConfig.waterLevel * 100).toFixed(0)}%</span>
+              </div>
+              <input
+                type="range" min="0" max="1" step="0.05"
+                value={planetConfig.waterLevel}
+                onChange={(e) => updatePlanetConfig({ waterLevel: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <label>Land Color</label>
+              <input
+                type="color"
+                value={planetConfig.colorLand}
+                onChange={(e) => updatePlanetConfig({ colorLand: e.target.value })}
+              />
+            </div>
+
+            <div className="control-group">
+              <label>Water Color</label>
+              <input
+                type="color"
+                value={planetConfig.colorWater}
+                onChange={(e) => updatePlanetConfig({ colorWater: e.target.value })}
+              />
+            </div>
+
+            <div className="control-checkbox">
+              <input
+                type="checkbox"
+                id="atmosphere"
+                checked={planetConfig.showAtmosphere}
+                onChange={(e) => updatePlanetConfig({ showAtmosphere: e.target.checked })}
+              />
+              <label htmlFor="atmosphere">Show Atmosphere</label>
+            </div>
+          </>
+        )}
+
+        {activeGenerator === 'particles' && (
+          <>
+            <div className="control-group">
+              <div className="control-row">
+                <label>Particle Count</label>
+                <span className="control-value">{particleConfig.count.toLocaleString()}</span>
+              </div>
+              <input
+                type="range" min="100" max="5000" step="100"
+                value={particleConfig.count}
+                onChange={(e) => updateParticleConfig({ count: parseInt(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <div className="control-row">
+                <label>Speed</label>
+                <span className="control-value">{particleConfig.speed.toFixed(1)}x</span>
+              </div>
+              <input
+                type="range" min="0.1" max="5" step="0.1"
+                value={particleConfig.speed}
+                onChange={(e) => updateParticleConfig({ speed: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <div className="control-row">
+                <label>Spread</label>
+                <span className="control-value">{particleConfig.spread}</span>
+              </div>
+              <input
+                type="range" min="2" max="15" step="1"
+                value={particleConfig.spread}
+                onChange={(e) => updateParticleConfig({ spread: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <label><Palette size={12} /> Color</label>
+              <input
+                type="color"
+                value={particleConfig.color}
+                onChange={(e) => updateParticleConfig({ color: e.target.value })}
+              />
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============ AI COMMANDER COMPONENT ============
+function AICommander() {
+  const [prompt, setPrompt] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [lastResponse, setLastResponse] = useState<string | null>(null);
+  const {
+    activeGenerator, setActiveGenerator,
+    updateShapeConfig, updatePlanetConfig, updateParticleConfig
+  } = useStore();
+
+  const handleCommand = async () => {
+    if (!prompt.trim()) return;
+    setIsProcessing(true);
+    try {
+      const result = await processAICommand(prompt, activeGenerator);
+      if (result.intent !== activeGenerator && result.intent !== 'unknown') {
+        setActiveGenerator(result.intent);
+      }
+      if (result.configUpdate && Object.keys(result.configUpdate).length > 0) {
+        if (result.intent === 'shapes') updateShapeConfig(result.configUpdate);
+        if (result.intent === 'planet') updatePlanetConfig(result.configUpdate);
+        if (result.intent === 'particles') updateParticleConfig(result.configUpdate);
+      }
+      setLastResponse(result.message);
+    } catch {
+      setLastResponse("Systems offline. Please try again.");
+    } finally {
+      setIsProcessing(false);
+      setPrompt('');
+    }
+  };
+
+  return (
+    <div className="ai-section">
+      {lastResponse && (
+        <div className="ai-response">
+          <div className="ai-avatar">
+            <Bot size={14} />
+          </div>
+          <div className="ai-content">
+            <p className="ai-label">Aether AI</p>
+            <p className="ai-message">{lastResponse}</p>
+          </div>
+          <button onClick={() => setLastResponse(null)} className="ai-close">×</button>
+        </div>
+      )}
+
+      <div className="ai-input-container">
+        <input
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleCommand()}
+          placeholder={`Describe your ${activeGenerator}...`}
+          disabled={isProcessing}
+        />
+        <button onClick={handleCommand} disabled={!prompt.trim() || isProcessing}>
+          <Send size={14} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============ 3D SCENE COMPONENT ============
 function SceneContent() {
   const { activeGenerator } = useStore();
 
   return (
     <>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} color="#06b6d4" />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#8b5cf6" />
-
-      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+      <ambientLight intensity={0.4} />
+      <pointLight position={[10, 10, 10]} intensity={1.5} color="#06b6d4" />
+      <pointLight position={[-10, -10, -10]} intensity={0.8} color="#8b5cf6" />
+      <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={0.5} />
 
       <group>
         {activeGenerator === 'shapes' && <InteractiveShape />}
@@ -26,28 +333,37 @@ function SceneContent() {
         {activeGenerator === 'particles' && <ParticleField />}
       </group>
 
-      <OrbitControls makeDefault autoRotate={false} />
-      <Environment preset="city" />
+      <OrbitControls makeDefault enableDamping dampingFactor={0.05} minDistance={3} maxDistance={20} />
+      <Environment preset="night" />
     </>
   );
 }
 
+// ============ MAIN APP ============
 function App() {
   return (
     <StoreProvider>
-      <Layout>
-        <div className="absolute inset-0 z-0">
-          <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
+      <div className="app-container">
+        {/* LEFT PANEL: Sidebar + Controls + AI */}
+        <div className="left-panel">
+          <Sidebar />
+          <Controls />
+          <AICommander />
+        </div>
+
+        {/* RIGHT PANEL: 3D Canvas */}
+        <div className="right-panel">
+          <Canvas
+            camera={{ position: [0, 0, 8], fov: 45 }}
+            dpr={[1, 2]}
+            gl={{ antialias: true, alpha: true }}
+          >
             <Suspense fallback={null}>
               <SceneContent />
             </Suspense>
           </Canvas>
         </div>
-
-        <AICommander />
-        <Controls />
-
-      </Layout>
+      </div>
     </StoreProvider>
   );
 }

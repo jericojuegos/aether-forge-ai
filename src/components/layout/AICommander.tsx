@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Send, Bot, Sparkles } from 'lucide-react';
+import { Send, Bot, Sparkles, MessageSquare } from 'lucide-react';
 import { useStore } from '../../store/StoreContext';
 import { processAICommand } from '../../services/ai';
 
@@ -40,53 +40,75 @@ export const AICommander = () => {
     };
 
     return (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-2xl z-30 px-4">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-xl z-30 px-4">
+            {/* Response Message */}
             {lastResponse && (
-                <div className="mb-4 bg-aether-panel backdrop-blur-md border border-aether-accent/20 rounded-lg p-3 text-sm flex items-start gap-3 animate-fade-in-up">
-                    <div className="bg-aether-accent/10 p-1.5 rounded-md">
-                        <Bot size={16} className="text-aether-accent" />
+                <div className="mb-3 glass-panel rounded-xl p-3 animate-fade-in-up">
+                    <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shrink-0">
+                            <Bot size={16} className="text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-cyan-400 mb-1">Aether AI</p>
+                            <p className="text-sm text-slate-300">{lastResponse}</p>
+                        </div>
+                        <button
+                            onClick={() => setLastResponse(null)}
+                            className="text-slate-500 hover:text-white text-lg leading-none"
+                        >
+                            ×
+                        </button>
                     </div>
-                    <div className="flex-1">
-                        <span className="font-semibold text-aether-accent block mb-1">Aether AI</span>
-                        <p className="text-slate-300">{lastResponse}</p>
-                    </div>
-                    <button onClick={() => setLastResponse(null)} className="text-slate-500 hover:text-white">×</button>
                 </div>
             )}
 
+            {/* Input Bar */}
             <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-                <div className="relative bg-gray-900/90 backdrop-blur-xl border border-white/10 rounded-xl p-2 flex items-center gap-2 shadow-2xl">
-                    <div className="pl-3 pr-2">
+                {/* Glow effect */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/30 via-blue-500/30 to-violet-500/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                <div className="relative glass-panel rounded-2xl p-1.5 flex items-center gap-2">
+                    {/* Status indicator */}
+                    <div className="pl-3 pr-1">
                         {isProcessing ? (
-                            <Sparkles className="animate-spin text-purple-400" size={20} />
+                            <Sparkles className="animate-spin text-violet-400" size={18} />
                         ) : (
-                            <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse" />
+                            <MessageSquare size={18} className="text-slate-500" />
                         )}
                     </div>
 
+                    {/* Input */}
                     <input
                         type="text"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleCommand()}
-                        placeholder={`Ask Aether to design your ${activeGenerator}...`}
-                        className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-500 h-10 px-2"
+                        placeholder={`Describe your ${activeGenerator}... (e.g. "red torus", "mars planet")`}
+                        className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-500 h-10 px-2 text-sm"
                         disabled={isProcessing}
                     />
 
+                    {/* Send Button */}
                     <button
                         onClick={handleCommand}
                         disabled={!prompt.trim() || isProcessing}
-                        className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-white"
+                        className="p-2.5 bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed text-white shadow-lg shadow-cyan-500/20"
                     >
-                        <Send size={18} />
+                        <Send size={16} />
                     </button>
                 </div>
             </div>
 
-            <div className="text-center mt-3 text-xs text-slate-500 font-mono">
-                System Status: <span className="text-emerald-500">OPTIMAL</span> | GPU Acceleration: <span className="text-emerald-500">ACTIVE</span>
+            {/* Status bar */}
+            <div className="flex justify-center items-center gap-4 mt-3 text-[10px] text-slate-600 font-mono">
+                <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span>SYSTEM ONLINE</span>
+                </div>
+                <span>•</span>
+                <span>GPU ACCELERATED</span>
+                <span>•</span>
+                <span>60 FPS</span>
             </div>
         </div>
     );
