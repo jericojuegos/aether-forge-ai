@@ -6,8 +6,9 @@ import { InteractiveShape } from './components/generators/InteractiveShape';
 import { ProceduralPlanet } from './components/generators/ProceduralPlanet';
 import { ParticleField } from './components/generators/ParticleField';
 import { FluidSimulation } from './components/generators/FluidSimulation';
+import { NeuralNexus } from './components/generators/NeuralNexus';
 import { CodePreview } from './components/layout/CodePreview';
-import { Box, Globe, Sparkles, Cpu, Send, Bot, Sliders, Palette, RotateCw, Zap, Code2, Droplets } from 'lucide-react';
+import { Box, Globe, Sparkles, Cpu, Send, Bot, Sliders, Palette, RotateCw, Zap, Code2, Droplets, Share2 } from 'lucide-react';
 import { useState } from 'react';
 import { processAICommand } from './services/ai';
 import './index.css';
@@ -21,6 +22,7 @@ function Sidebar() {
     { id: 'planet' as const, label: 'Planet', icon: <Globe size={18} /> },
     { id: 'particles' as const, label: 'Particles', icon: <Sparkles size={18} /> },
     { id: 'fluid' as const, label: 'Fluid', icon: <Droplets size={18} /> },
+    { id: 'neural' as const, label: 'Neural', icon: <Share2 size={18} /> },
   ];
 
   return (
@@ -84,14 +86,16 @@ function Controls() {
     shapeConfig, updateShapeConfig,
     planetConfig, updatePlanetConfig,
     particleConfig, updateParticleConfig,
-    fluidConfig, updateFluidConfig
+    fluidConfig, updateFluidConfig,
+    neuralConfig, updateNeuralConfig
   } = useStore();
 
   const titles: Record<string, string> = {
     shapes: 'Shape Controls',
     planet: 'Planet Controls',
     particles: 'Particle Controls',
-    fluid: 'Fluid Controls'
+    fluid: 'Fluid Controls',
+    neural: 'Neural Controls'
   };
 
   return (
@@ -315,6 +319,64 @@ function Controls() {
             </div>
           </>
         )}
+
+        {activeGenerator === 'neural' && (
+          <>
+            <div className="control-group">
+              <div className="control-row">
+                <label>Node Count</label>
+                <span className="control-value">{neuralConfig.nodeCount}</span>
+              </div>
+              <input
+                type="range" min="50" max="500" step="10"
+                value={neuralConfig.nodeCount}
+                onChange={(e) => updateNeuralConfig({ nodeCount: parseInt(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <div className="control-row">
+                <label>Connection Radius</label>
+                <span className="control-value">{neuralConfig.connectionRadius.toFixed(1)}</span>
+              </div>
+              <input
+                type="range" min="1" max="5" step="0.1"
+                value={neuralConfig.connectionRadius}
+                onChange={(e) => updateNeuralConfig({ connectionRadius: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <div className="control-row">
+                <label>Pulse Speed</label>
+                <span className="control-value">{neuralConfig.pulseSpeed.toFixed(1)}x</span>
+              </div>
+              <input
+                type="range" min="0.1" max="5" step="0.1"
+                value={neuralConfig.pulseSpeed}
+                onChange={(e) => updateNeuralConfig({ pulseSpeed: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <label>Base Color</label>
+              <input
+                type="color"
+                value={neuralConfig.baseColor}
+                onChange={(e) => updateNeuralConfig({ baseColor: e.target.value })}
+              />
+            </div>
+
+            <div className="control-group">
+              <label>Glow Color</label>
+              <input
+                type="color"
+                value={neuralConfig.glowColor}
+                onChange={(e) => updateNeuralConfig({ glowColor: e.target.value })}
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -327,7 +389,7 @@ function AICommander() {
   const [lastResponse, setLastResponse] = useState<string | null>(null);
   const {
     activeGenerator, setActiveGenerator,
-    updateShapeConfig, updatePlanetConfig, updateParticleConfig
+    updateShapeConfig, updatePlanetConfig, updateParticleConfig, updateFluidConfig, updateNeuralConfig
   } = useStore();
 
   const handleCommand = async () => {
@@ -342,6 +404,8 @@ function AICommander() {
         if (result.intent === 'shapes') updateShapeConfig(result.configUpdate);
         if (result.intent === 'planet') updatePlanetConfig(result.configUpdate);
         if (result.intent === 'particles') updateParticleConfig(result.configUpdate);
+        if (result.intent === 'fluid') updateFluidConfig(result.configUpdate);
+        if (result.intent === 'neural') updateNeuralConfig(result.configUpdate);
       }
       setLastResponse(result.message);
     } catch {
@@ -399,6 +463,7 @@ function SceneContent() {
         {activeGenerator === 'shapes' && <InteractiveShape />}
         {activeGenerator === 'planet' && <ProceduralPlanet />}
         {activeGenerator === 'particles' && <ParticleField />}
+        {activeGenerator === 'neural' && <NeuralNexus />}
       </group>
 
       <OrbitControls makeDefault enableDamping dampingFactor={0.05} minDistance={3} maxDistance={20} />

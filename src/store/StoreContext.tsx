@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 
-export type GeneratorType = 'shapes' | 'planet' | 'particles' | 'fluid';
+export type GeneratorType = 'shapes' | 'planet' | 'particles' | 'fluid' | 'neural';
 
 export interface ShapeConfig {
     geometryType: 'icosahedron' | 'sphere' | 'box' | 'torus' | 'octahedron';
@@ -38,6 +38,14 @@ export interface FluidConfig {
     paused: boolean;
 }
 
+export interface NeuralConfig {
+    nodeCount: number;
+    connectionRadius: number;
+    pulseSpeed: number;
+    baseColor: string;
+    glowColor: string;
+}
+
 
 interface AppState {
     activeGenerator: GeneratorType;
@@ -45,6 +53,7 @@ interface AppState {
     planetConfig: PlanetConfig;
     particleConfig: ParticleConfig;
     fluidConfig: FluidConfig;
+    neuralConfig: NeuralConfig;
     viewMode: 'visual' | 'code';
     codePlatform: 'react' | 'threejs' | 'wordpress';
 }
@@ -55,6 +64,7 @@ interface AppContextType extends AppState {
     updatePlanetConfig: (update: Partial<PlanetConfig>) => void;
     updateParticleConfig: (update: Partial<ParticleConfig>) => void;
     updateFluidConfig: (update: Partial<FluidConfig>) => void;
+    updateNeuralConfig: (update: Partial<NeuralConfig>) => void;
     toggleViewMode: () => void;
     setCodePlatform: (platform: 'react' | 'threejs' | 'wordpress') => void;
 }
@@ -100,6 +110,14 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
         paused: false
     });
 
+    const [neuralConfig, setNeuralConfig] = useState<NeuralConfig>({
+        nodeCount: 100,
+        connectionRadius: 2.5,
+        pulseSpeed: 1,
+        baseColor: '#2563eb', // blue-600
+        glowColor: '#60a5fa', // blue-400
+    });
+
     const [viewMode, setViewMode] = useState<'visual' | 'code'>('visual');
     const [codePlatform, setCodePlatform] = useState<'react' | 'threejs' | 'wordpress'>('react');
 
@@ -107,6 +125,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     const updatePlanetConfig = (update: Partial<PlanetConfig>) => setPlanetConfig(prev => ({ ...prev, ...update }));
     const updateParticleConfig = (update: Partial<ParticleConfig>) => setParticleConfig(prev => ({ ...prev, ...update }));
     const updateFluidConfig = (update: Partial<FluidConfig>) => setFluidConfig(prev => ({ ...prev, ...update }));
+    const updateNeuralConfig = (update: Partial<NeuralConfig>) => setNeuralConfig(prev => ({ ...prev, ...update }));
     const toggleViewMode = () => setViewMode(prev => prev === 'visual' ? 'code' : 'visual');
 
     return (
@@ -116,6 +135,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
             planetConfig,
             particleConfig,
             fluidConfig,
+            neuralConfig,
             viewMode,
             codePlatform,
             setActiveGenerator,
@@ -123,6 +143,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
             updatePlanetConfig,
             updateParticleConfig,
             updateFluidConfig,
+            updateNeuralConfig,
             toggleViewMode,
             setCodePlatform
         }}>

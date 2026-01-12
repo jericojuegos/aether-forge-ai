@@ -4,12 +4,13 @@ import { generateReactCode } from '../../services/generators/reactGenerator';
 import { generateThreeJsCode } from '../../services/generators/threeJsGenerator';
 import { generateWordPressCode } from '../../services/generators/wordpressGenerator';
 import { generateFluidCode } from '../../services/generators/fluidGenerator';
+import { generateNeuralCode } from '../../services/generators/neuralGenerator';
 import { Clipboard, Check, X, Code2, Layers, Cpu, Globe, HelpCircle, ChevronRight, ChevronDown } from 'lucide-react';
 
 export const CodePreview: React.FC = () => {
     const {
         viewMode, toggleViewMode,
-        activeGenerator, shapeConfig, planetConfig, particleConfig, fluidConfig,
+        activeGenerator, shapeConfig, planetConfig, particleConfig, fluidConfig, neuralConfig,
         codePlatform, setCodePlatform
     } = useStore();
 
@@ -23,6 +24,11 @@ export const CodePreview: React.FC = () => {
             return;
         }
 
+        if (activeGenerator === 'neural') {
+            setCode(generateNeuralCode(activeGenerator, neuralConfig, codePlatform));
+            return;
+        }
+
         const config = activeGenerator === 'shapes' ? shapeConfig :
             activeGenerator === 'planet' ? planetConfig : particleConfig;
 
@@ -33,7 +39,7 @@ export const CodePreview: React.FC = () => {
         } else {
             setCode(generateWordPressCode(activeGenerator, config));
         }
-    }, [activeGenerator, shapeConfig, planetConfig, particleConfig, fluidConfig, codePlatform]);
+    }, [activeGenerator, shapeConfig, planetConfig, particleConfig, fluidConfig, neuralConfig, codePlatform]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(code);
