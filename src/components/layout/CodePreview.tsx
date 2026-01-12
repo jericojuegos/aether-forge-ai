@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useStore } from '../../store/StoreContext';
 import { generateReactCode } from '../../services/generators/reactGenerator';
 import { generateThreeJsCode } from '../../services/generators/threeJsGenerator';
-import { Clipboard, Check, X, Code2, Layers, Cpu } from 'lucide-react';
+import { generateWordPressCode } from '../../services/generators/wordpressGenerator';
+import { Clipboard, Check, X, Code2, Layers, Cpu, Globe, HelpCircle, ChevronRight, ChevronDown } from 'lucide-react';
 
 export const CodePreview: React.FC = () => {
     const {
@@ -13,6 +14,7 @@ export const CodePreview: React.FC = () => {
 
     const [copied, setCopied] = useState(false);
     const [code, setCode] = useState('');
+    const [showInstructions, setShowInstructions] = useState(false);
 
     useEffect(() => {
         const config = activeGenerator === 'shapes' ? shapeConfig :
@@ -20,8 +22,10 @@ export const CodePreview: React.FC = () => {
 
         if (codePlatform === 'react') {
             setCode(generateReactCode(activeGenerator, config));
-        } else {
+        } else if (codePlatform === 'threejs') {
             setCode(generateThreeJsCode(activeGenerator, config));
+        } else {
+            setCode(generateWordPressCode(activeGenerator, config));
         }
     }, [activeGenerator, shapeConfig, planetConfig, particleConfig, codePlatform]);
 
@@ -61,6 +65,12 @@ export const CodePreview: React.FC = () => {
                             >
                                 <Cpu size={14} /> Three.js
                             </button>
+                            <button
+                                className={codePlatform === 'wordpress' ? 'active' : ''}
+                                onClick={() => setCodePlatform('wordpress')}
+                            >
+                                <Globe size={14} /> WordPress
+                            </button>
                         </div>
                     </div>
 
@@ -75,17 +85,55 @@ export const CodePreview: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="code-content">
-                    <pre>
-                        <code>
-                            {code.split('\n').map((line, i) => (
-                                <div key={i} className="code-line">
-                                    <span className="line-number">{i + 1}</span>
-                                    <span className="line-text">{highlightCode(line)}</span>
+                <div className="code-layout">
+                    <div className="code-content">
+                        <pre>
+                            <code>
+                                {code.split('\n').map((line, i) => (
+                                    <div key={i} className="code-line">
+                                        <span className="line-number">{i + 1}</span>
+                                        <span className="line-text">{highlightCode(line)}</span>
+                                    </div>
+                                ))}
+                            </code>
+                        </pre>
+                    </div>
+
+                    {codePlatform === 'wordpress' && (
+                        <div className="instructions-panel">
+                            <button
+                                className="instructions-toggle"
+                                onClick={() => setShowInstructions(!showInstructions)}
+                            >
+                                <div className="toggle-left">
+                                    <HelpCircle size={16} />
+                                    <span>Usage Instructions</span>
                                 </div>
-                            ))}
-                        </code>
-                    </pre>
+                                {showInstructions ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                            </button>
+
+                            {showInstructions && (
+                                <div className="instructions-body">
+                                    <div className="instruction-item">
+                                        <h4>Gutenberg (Block Editor)</h4>
+                                        <p>Add a <strong>"Custom HTML"</strong> block and paste the code inside.</p>
+                                    </div>
+                                    <div className="instruction-item">
+                                        <h4>Elementor</h4>
+                                        <p>Drag the <strong>"HTML"</strong> widget to your page and paste the code.</p>
+                                    </div>
+                                    <div className="instruction-item">
+                                        <h4>Classic Editor</h4>
+                                        <p>Switch to the <strong>"Text"</strong> tab (HTML mode) and paste the code.</p>
+                                    </div>
+                                    <div className="instruction-item">
+                                        <h4>Divi / WP Bakery</h4>
+                                        <p>Use the <strong>"Code"</strong> or <strong>"Raw HTML"</strong> module/element.</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

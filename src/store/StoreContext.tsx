@@ -31,7 +31,7 @@ interface AppState {
     planetConfig: PlanetConfig;
     particleConfig: ParticleConfig;
     viewMode: 'visual' | 'code';
-    codePlatform: 'react' | 'threejs';
+    codePlatform: 'react' | 'threejs' | 'wordpress';
 }
 
 interface AppContextType extends AppState {
@@ -40,7 +40,7 @@ interface AppContextType extends AppState {
     updatePlanetConfig: (update: Partial<PlanetConfig>) => void;
     updateParticleConfig: (update: Partial<ParticleConfig>) => void;
     toggleViewMode: () => void;
-    setCodePlatform: (platform: 'react' | 'threejs') => void;
+    setCodePlatform: (platform: 'react' | 'threejs' | 'wordpress') => void;
 }
 
 const StoreContext = createContext<AppContextType | undefined>(undefined);
@@ -72,7 +72,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     });
 
     const [viewMode, setViewMode] = useState<'visual' | 'code'>('visual');
-    const [codePlatform, setCodePlatform] = useState<'react' | 'threejs'>('react');
+    const [codePlatform, setCodePlatform] = useState<'react' | 'threejs' | 'wordpress'>('react');
 
     const updateShapeConfig = (update: Partial<ShapeConfig>) => setShapeConfig(prev => ({ ...prev, ...update }));
     const updatePlanetConfig = (update: Partial<PlanetConfig>) => setPlanetConfig(prev => ({ ...prev, ...update }));
