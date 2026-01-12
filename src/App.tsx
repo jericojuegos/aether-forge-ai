@@ -5,14 +5,15 @@ import { OrbitControls, Environment, Stars } from '@react-three/drei';
 import { InteractiveShape } from './components/generators/InteractiveShape';
 import { ProceduralPlanet } from './components/generators/ProceduralPlanet';
 import { ParticleField } from './components/generators/ParticleField';
-import { Box, Globe, Sparkles, Cpu, Send, Bot, Sliders, Palette, RotateCw, Zap } from 'lucide-react';
+import { CodePreview } from './components/layout/CodePreview';
+import { Box, Globe, Sparkles, Cpu, Send, Bot, Sliders, Palette, RotateCw, Zap, Code2 } from 'lucide-react';
 import { useState } from 'react';
 import { processAICommand } from './services/ai';
 import './index.css';
 
 // ============ SIDEBAR COMPONENT ============
 function Sidebar() {
-  const { activeGenerator, setActiveGenerator } = useStore();
+  const { activeGenerator, setActiveGenerator, toggleViewMode } = useStore();
 
   const navItems = [
     { id: 'shapes' as const, label: 'Shapes', icon: <Box size={18} /> },
@@ -49,8 +50,21 @@ function Sidebar() {
         ))}
       </nav>
 
+      {/* Code Export */}
+      <div className="status-section" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '16px', marginBottom: '8px', marginTop: '24px' }}>
+        <p className="nav-label">EXPORT</p>
+        <button
+          className="nav-button"
+          style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', borderColor: 'rgba(6, 182, 212, 0.2)' }}
+          onClick={toggleViewMode}
+        >
+          <Code2 size={18} />
+          <span>View Code</span>
+        </button>
+      </div>
+
       {/* Status */}
-      <div className="status-section">
+      <div className="status-section" style={{ marginTop: '0', paddingTop: '8px' }}>
         <div className="status-indicator">
           <div className="status-dot" />
           <span>SYSTEM ONLINE</span>
@@ -344,6 +358,8 @@ function App() {
   return (
     <StoreProvider>
       <div className="app-container">
+        <CodePreview />
+
         {/* LEFT PANEL: Sidebar + Controls + AI */}
         <div className="left-panel">
           <Sidebar />

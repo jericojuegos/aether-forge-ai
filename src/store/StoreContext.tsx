@@ -30,6 +30,8 @@ interface AppState {
     shapeConfig: ShapeConfig;
     planetConfig: PlanetConfig;
     particleConfig: ParticleConfig;
+    viewMode: 'visual' | 'code';
+    codePlatform: 'react' | 'threejs';
 }
 
 interface AppContextType extends AppState {
@@ -37,6 +39,8 @@ interface AppContextType extends AppState {
     updateShapeConfig: (update: Partial<ShapeConfig>) => void;
     updatePlanetConfig: (update: Partial<PlanetConfig>) => void;
     updateParticleConfig: (update: Partial<ParticleConfig>) => void;
+    toggleViewMode: () => void;
+    setCodePlatform: (platform: 'react' | 'threejs') => void;
 }
 
 const StoreContext = createContext<AppContextType | undefined>(undefined);
@@ -67,9 +71,13 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
         spread: 5,
     });
 
+    const [viewMode, setViewMode] = useState<'visual' | 'code'>('visual');
+    const [codePlatform, setCodePlatform] = useState<'react' | 'threejs'>('react');
+
     const updateShapeConfig = (update: Partial<ShapeConfig>) => setShapeConfig(prev => ({ ...prev, ...update }));
     const updatePlanetConfig = (update: Partial<PlanetConfig>) => setPlanetConfig(prev => ({ ...prev, ...update }));
     const updateParticleConfig = (update: Partial<ParticleConfig>) => setParticleConfig(prev => ({ ...prev, ...update }));
+    const toggleViewMode = () => setViewMode(prev => prev === 'visual' ? 'code' : 'visual');
 
     return (
         <StoreContext.Provider value={{
@@ -77,10 +85,14 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
             shapeConfig,
             planetConfig,
             particleConfig,
+            viewMode,
+            codePlatform,
             setActiveGenerator,
             updateShapeConfig,
             updatePlanetConfig,
-            updateParticleConfig
+            updateParticleConfig,
+            toggleViewMode,
+            setCodePlatform
         }}>
             {children}
         </StoreContext.Provider>
