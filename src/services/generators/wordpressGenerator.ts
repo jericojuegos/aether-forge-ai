@@ -16,15 +16,12 @@ export function generateWordPressCode(activeGenerator: string, config: any): str
         const mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
         
-        function animate() {
-            requestAnimationFrame(animate);
+        onAnimate(() => {
             if (${shapeConfig.autoRotate}) {
                 mesh.rotation.x += 0.01;
                 mesh.rotation.y += 0.01;
             }
-            renderer.render(scene, camera);
-        }
-        animate();`;
+        });`;
     } else if (activeGenerator === 'planet') {
         const planetConfig = config as PlanetConfig;
         generatorLogic = `
@@ -126,9 +123,8 @@ export function generateWordPressCode(activeGenerator: string, config: any): str
         const planetBody = new THREE.Mesh(new THREE.IcosahedronGeometry(2, ${planetConfig.detail}), material);
         scene.add(planetBody);
         
-        let atmosphere;
         if (${planetConfig.showAtmosphere}) {
-            atmosphere = new THREE.Mesh(
+            const atmosphere = new THREE.Mesh(
                 new THREE.SphereGeometry(2, 32, 32),
                 new THREE.MeshBasicMaterial({ 
                     color: '${planetConfig.colorWater}', 
@@ -143,16 +139,12 @@ export function generateWordPressCode(activeGenerator: string, config: any): str
         }
         
         const clock = new THREE.Clock();
-        function animate() {
-            requestAnimationFrame(animate);
-            const delta = clock.getElapsedTime();
-            material.uniforms.uTime.value = delta;
+        onAnimate(() => {
+            material.uniforms.uTime.value = clock.getElapsedTime();
             planetBody.rotation.y += 0.001;
-            renderer.render(scene, camera);
-        }
-        animate();`;
+        });`;
     } else if (activeGenerator === 'particles') {
-        const particleConfig = config as any; // Using any for local snippet flexibility
+        const particleConfig = config as any;
         generatorLogic = `
         const count = ${particleConfig.count};
         const spread = ${particleConfig.spread};
@@ -176,32 +168,38 @@ export function generateWordPressCode(activeGenerator: string, config: any): str
         const points = new THREE.Points(geometry, material);
         scene.add(points);
         
-        function animate() {
-            requestAnimationFrame(animate);
+        onAnimate(() => {
             points.rotation.y += ${particleConfig.speed * 0.001};
             points.rotation.x += ${particleConfig.speed * 0.0005};
-            renderer.render(scene, camera);
-        }
-        animate();`;
+        });`;
     } else {
-        generatorLogic = `// WordPress support for ${activeGenerator} is simplified.
+        generatorLogic = `
         const mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 1), new THREE.MeshStandardMaterial({ color: '#06b6d4' }));
         scene.add(mesh);
-        function animate() { requestAnimationFrame(animate); mesh.rotation.y += 0.01; renderer.render(scene, camera); }
-        animate();`;
+        onAnimate(() => { mesh.rotation.y += 0.01; });`;
     }
 
     return `<!-- AetherForge WordPress Export -->
 <div id="${containerId}" style="width: 100%; height: 500px; border-radius: 12px; overflow: hidden; background: #0a0e17;"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<!-- Import Map for correct module resolution -->
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+</script>
 
-<script>
-(function() {
-    const container = document.getElementById('${containerId}');
-    if (!container) return;
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    const init = () => {
+    (function() {
+        const container = document.getElementById('${containerId}');
+        if (!container) return;
+
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
         camera.position.z = 5;
@@ -211,31 +209,33 @@ export function generateWordPressCode(activeGenerator: string, config: any): str
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
         const pointLight = new THREE.PointLight(0xffffff, 1.5);
         pointLight.position.set(10, 10, 10);
         scene.add(pointLight);
 
+        let animateCallbacks = [];
+        const onAnimate = (cb) => animateCallbacks.push(cb);
+
         ${generatorLogic}
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            animateCallbacks.forEach(cb => cb());
+            renderer.render(scene, camera);
+        }
+        animate();
 
         window.addEventListener('resize', () => {
             camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(container.clientWidth, container.clientHeight);
         });
-    };
-
-    if (typeof THREE !== 'undefined') {
-        init();
-    } else {
-        const checkThree = setInterval(() => {
-            if (typeof THREE !== 'undefined') {
-                clearInterval(checkThree);
-                init();
-            }
-        }, 100);
-    }
-})();
+    })();
 </script>`;
 }

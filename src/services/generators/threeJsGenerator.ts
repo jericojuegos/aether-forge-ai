@@ -225,6 +225,8 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+const controls = new OrbitControls(camera, renderer.domElement);
+
 // --- Geometry ---
 const count = ${particleConfig.count};
 const spread = ${particleConfig.spread};
@@ -250,6 +252,7 @@ scene.add(points);
 // --- Animation ---
 function animate() {
     requestAnimationFrame(animate);
+    controls.update();
     points.rotation.y += ${particleConfig.speed * 0.001};
     points.rotation.x += ${particleConfig.speed * 0.0005};
     renderer.render(scene, camera);

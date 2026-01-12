@@ -199,7 +199,7 @@ export default function App() {
     const particleConfig = config as ParticleConfig;
     return `import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Points, PointMaterial } from '@react-three/drei';
+import { Points, PointMaterial, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
 const ParticleField = () => {
@@ -237,6 +237,7 @@ export default function App() {
     <div style={{ width: '100vw', height: '100vh', background: '#000' }}>
       <Canvas camera={{ position: [0, 0, 10] }}>
         <ParticleField />
+        <OrbitControls />
       </Canvas>
     </div>
   );
