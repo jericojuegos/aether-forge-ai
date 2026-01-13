@@ -113,34 +113,48 @@ function ConnectionLines() {
 }
 
 function FloatingCore() {
-    const ref = useRef<THREE.Mesh>(null);
+    const groupRef = useRef<THREE.Group>(null);
 
     useFrame((state) => {
-        if (ref.current) {
-            ref.current.rotation.x = state.clock.elapsedTime * 0.1;
-            ref.current.rotation.y = state.clock.elapsedTime * 0.15;
-            ref.current.scale.setScalar(1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.05);
+        if (groupRef.current) {
+            groupRef.current.rotation.x = state.clock.elapsedTime * 0.05;
+            groupRef.current.rotation.y = state.clock.elapsedTime * 0.08;
         }
     });
 
     return (
-        <mesh ref={ref}>
-            <icosahedronGeometry args={[1.5, 1]} />
-            <meshBasicMaterial
-                color="hsl(185, 100%, 50%)"
-                wireframe
-                transparent
-                opacity={0.3}
-            />
-        </mesh>
+        <group ref={groupRef}>
+            <mesh>
+                <icosahedronGeometry args={[4, 2]} />
+                <meshBasicMaterial
+                    color="hsl(185, 100%, 50%)"
+                    wireframe
+                    transparent
+                    opacity={0.3} // Increased visibility
+                />
+            </mesh>
+
+            <points>
+                <icosahedronGeometry args={[4, 2]} />
+                <pointsMaterial
+                    size={0.1} // Larger points
+                    color="hsl(185, 100%, 50%)"
+                    transparent
+                    opacity={0.8} // High opacity for visibility
+                    sizeAttenuation={true}
+                    depthWrite={false}
+                    blending={THREE.AdditiveBlending}
+                />
+            </points>
+        </group>
     );
 }
 
 export default function NeuralBackground() {
     return (
-        <div className="absolute inset-0 -z-10">
+        <div className="fixed inset-0 -z-10 bg-[hsl(222,47%,4%)]">
             <Canvas
-                camera={{ position: [0, 0, 12], fov: 60 }}
+                camera={{ position: [0, 0, 10], fov: 60 }}
                 dpr={[1, 2]}
                 style={{ background: 'transparent' }}
             >
@@ -151,8 +165,8 @@ export default function NeuralBackground() {
             </Canvas>
 
             {/* Gradient overlay for depth */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background pointer-events-none" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(222_47%_4%/0.8)_100%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[hsl(222,47%,4%)]/20 to-[hsl(222,47%,4%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(222_47%_4%/0.7)_100%)] pointer-events-none" />
         </div>
     );
 }

@@ -49,7 +49,7 @@ export default function LandingPage() {
     const { setView } = useStore();
 
     return (
-        <div className="relative min-h-screen overflow-hidden" style={{ background: 'hsl(222 47% 4%)' }}>
+        <div className="relative min-h-screen overflow-hidden">
             {/* 3D Background */}
             <NeuralBackground />
 
@@ -58,7 +58,7 @@ export default function LandingPage() {
                 {/* Navigation */}
                 <motion.nav
                     initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    animate={{ opacity: 0.5, y: 0 }}
                     transition={{ duration: 0.6 }}
                     className="flex items-center justify-between px-8 py-6"
                 >
