@@ -62,6 +62,7 @@ interface AppState {
     viewMode: 'visual' | 'code';
     codePlatform: 'react' | 'threejs' | 'wordpress';
     aiConfig: AIConfig;
+    view: 'landing' | 'studio';
 }
 
 interface AppContextType extends AppState {
@@ -74,6 +75,7 @@ interface AppContextType extends AppState {
     updateAIConfig: (update: Partial<AIConfig>) => void;
     toggleViewMode: () => void;
     setCodePlatform: (platform: 'react' | 'threejs' | 'wordpress') => void;
+    setView: (view: 'landing' | 'studio') => void;
 }
 
 const StoreContext = createContext<AppContextType | undefined>(undefined);
@@ -132,6 +134,8 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
         modelName: 'gemini-2.0-flash'
     });
 
+    const [view, setView] = useState<'landing' | 'studio'>('landing');
+
     const updateShapeConfig = (update: Partial<ShapeConfig>) => setShapeConfig(prev => ({ ...prev, ...update }));
     const updatePlanetConfig = (update: Partial<PlanetConfig>) => setPlanetConfig(prev => ({ ...prev, ...update }));
     const updateParticleConfig = (update: Partial<ParticleConfig>) => setParticleConfig(prev => ({ ...prev, ...update }));
@@ -159,7 +163,9 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
             updateNeuralConfig,
             updateAIConfig,
             toggleViewMode,
-            setCodePlatform
+            setCodePlatform,
+            view,
+            setView
         }}>
             {children}
         </StoreContext.Provider>

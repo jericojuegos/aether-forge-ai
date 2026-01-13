@@ -1,27 +1,210 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Core backgrounds - deep space theme */
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+
+    /* Cards */
+    --card: 222 47% 7%;
+    --card-foreground: 210 40% 98%;
+
+    /* Primary - Electric cyan */
+    --primary: 185 100% 50%;
+    --primary-foreground: 222 47% 4%;
+
+    /* Secondary - Deep purple */
+    --secondary: 270 60% 50%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Muted surfaces */
+    --muted: 222 40% 12%;
+    --muted-foreground: 215 20% 65%;
+
+    /* Accent - Vibrant magenta */
+    --accent: 320 100% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 30% 18%;
+    --input: 222 30% 18%;
+    --ring: 185 100% 50%;
+
+    --popover: 222 47% 7%;
+    --popover-foreground: 210 40% 98%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens for landing page */
+    --glow-primary: 185 100% 50%;
+    --glow-accent: 320 100% 60%;
+    --glow-secondary: 270 60% 50%;
+
+    /* Glass effect */
+    --glass-bg: 222 47% 8% / 0.6;
+    --glass-border: 210 40% 98% / 0.1;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(185 100% 50%), hsl(270 60% 50%));
+    --gradient-accent: linear-gradient(135deg, hsl(320 100% 60%), hsl(270 60% 50%));
+    --gradient-hero: linear-gradient(180deg, hsl(222 47% 4%) 0%, hsl(222 47% 8%) 100%);
+
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 185 100% 50%;
+    --sidebar-primary-foreground: 222 47% 4%;
+    --sidebar-accent: 222 40% 12%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222 30% 18%;
+    --sidebar-ring: 185 100% 50%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
 }
 
-html,
-body,
-#root {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
+@layer components {
+
+  /* Glassmorphism card */
+  .glass-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: hsl(222 47% 8% / 0.6);
+    border: 1px solid hsl(210 40% 98% / 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+        hsl(185 100% 50% / 0.05) 0%,
+        transparent 50%,
+        hsl(320 100% 60% / 0.05) 100%);
+    pointer-events: none;
+  }
+
+  /* Glow effects */
+  .glow-primary {
+    box-shadow:
+      0 0 20px hsl(185 100% 50% / 0.3),
+      0 0 40px hsl(185 100% 50% / 0.2),
+      0 0 60px hsl(185 100% 50% / 0.1);
+  }
+
+  .glow-accent {
+    box-shadow:
+      0 0 20px hsl(320 100% 60% / 0.3),
+      0 0 40px hsl(320 100% 60% / 0.2);
+  }
+
+  .text-glow-primary {
+    text-shadow:
+      0 0 10px hsl(185 100% 50% / 0.5),
+      0 0 20px hsl(185 100% 50% / 0.3),
+      0 0 30px hsl(185 100% 50% / 0.2);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(185 100% 50%), hsl(270 60% 50%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-accent {
+    background: linear-gradient(135deg, hsl(320 100% 60%), hsl(270 60% 50%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg, #0a0e17 0%, #0d1321 50%, #0a0e17 100%);
-  color: #e2e8f0;
-  -webkit-font-smoothing: antialiased;
+@layer utilities {
+
+  /* Float animation */
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* Pulse glow */
+  @keyframes pulse-glow {
+
+    0%,
+    100% {
+      opacity: 0.5;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  /* Shimmer effect */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        hsl(185 100% 50% / 0.1) 50%,
+        transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+  }
 }
 
-/* ============ MAIN LAYOUT ============ */
+/* ============ STUDIO STYLES ============ */
 .app-container {
   display: flex;
   height: 100vh;
@@ -47,7 +230,7 @@ body {
   background: radial-gradient(ellipse at center, #0f172a 0%, #020617 100%);
 }
 
-/* ============ SIDEBAR SECTION ============ */
+/* Sidebar */
 .sidebar-section {
   padding: 24px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -187,7 +370,7 @@ body {
   margin-top: 4px;
 }
 
-/* ============ CONTROLS SECTION ============ */
+/* Controls */
 .controls-section {
   flex: 1;
   padding: 20px;
@@ -351,7 +534,7 @@ body {
   cursor: pointer;
 }
 
-/* ============ AI SECTION ============ */
+/* AI Section */
 .ai-section {
   padding: 16px 20px 20px;
 }
@@ -454,7 +637,7 @@ body {
   cursor: not-allowed;
 }
 
-/* ============ CODE PREVIEW SECTION ============ */
+/* Code Preview */
 .code-preview-overlay {
   position: fixed;
   top: 0;
@@ -740,7 +923,6 @@ body {
   font-style: italic;
 }
 
-/* Scrollbar for code */
 .code-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -758,7 +940,6 @@ body {
   background: rgba(255, 255, 255, 0.15);
 }
 
-/* ============ CANVAS STYLES ============ */
 .right-panel canvas {
   width: 100% !important;
   height: 100% !important;

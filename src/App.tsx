@@ -8,6 +8,7 @@ import { ParticleField } from './components/generators/ParticleField';
 import { FluidSimulation } from './components/generators/FluidSimulation';
 import { NeuralNexus } from './components/generators/NeuralNexus';
 import { CodePreview } from './components/layout/CodePreview';
+import LandingPage from './components/landing/LandingPage';
 import { Box, Globe, Sparkles, Cpu, Send, Bot, Sliders, Palette, RotateCw, Zap, Code2, Droplets, Share2 } from 'lucide-react';
 import { useState } from 'react';
 import { processAICommand } from './services/ai';
@@ -557,24 +558,40 @@ function MainCanvas() {
 }
 
 // ============ MAIN APP ============
+function Studio() {
+  return (
+    <div className="app-container">
+      <CodePreview />
+
+      {/* LEFT PANEL: Sidebar + Controls + AI */}
+      <div className="left-panel">
+        <Sidebar />
+        <Controls />
+        <AICommander />
+      </div>
+
+      {/* RIGHT PANEL: 3D Canvas */}
+      <div className="right-panel">
+        <MainCanvas />
+      </div>
+    </div>
+  );
+}
+
+function AppContent() {
+  const { view } = useStore();
+
+  return (
+    <>
+      {view === 'landing' ? <LandingPage /> : <Studio />}
+    </>
+  );
+}
+
 function App() {
   return (
     <StoreProvider>
-      <div className="app-container">
-        <CodePreview />
-
-        {/* LEFT PANEL: Sidebar + Controls + AI */}
-        <div className="left-panel">
-          <Sidebar />
-          <Controls />
-          <AICommander />
-        </div>
-
-        {/* RIGHT PANEL: 3D Canvas */}
-        <div className="right-panel">
-          <MainCanvas />
-        </div>
-      </div>
+      <AppContent />
     </StoreProvider>
   );
 }
