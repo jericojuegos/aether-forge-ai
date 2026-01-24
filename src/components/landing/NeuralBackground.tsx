@@ -50,8 +50,8 @@ function ParticleField() {
         <Points ref={ref} positions={positions} stride={3} frustumCulled={false}>
             <PointMaterial
                 transparent
-                color="hsl(185, 100%, 50%)"
-                size={0.08}
+                color="hsla(0, 0%, 91%, 1.00)"
+                size={0.04}
                 sizeAttenuation={true}
                 depthWrite={false}
                 blending={THREE.AdditiveBlending}
@@ -105,7 +105,7 @@ function ConnectionLines() {
             <lineBasicMaterial
                 color="hsl(185, 100%, 50%)"
                 transparent
-                opacity={0.15}
+                opacity={0.5}
                 blending={THREE.AdditiveBlending}
             />
         </lineSegments>
@@ -137,7 +137,7 @@ function FloatingCore() {
             <points>
                 <icosahedronGeometry args={[4, 2]} />
                 <pointsMaterial
-                    size={0.1} // Larger points
+                    size={0.01} // Larger points
                     color="hsl(185, 100%, 50%)"
                     transparent
                     opacity={0.8} // High opacity for visibility
