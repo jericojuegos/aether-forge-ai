@@ -16,6 +16,7 @@ Generators available:
 - 'particles': Moving flow of points. Parameters: count (100 to 5000), speed (0.1 to 5), spread (2 to 15), color (hex).
 - 'fluid': Real-time fluid simulation. Parameters: curl (1 to 100), splatRadius (0.01 to 1), densityDissipation (0.1 to 10), shading (bool).
 - 'neural': Pulsing network. Parameters: nodeCount (50 to 500), connectionRadius (1 to 5), pulseSpeed (0.1 to 5), baseColor (hex), glowColor (hex).
+- 'void': Black hole accretion disk. Parameters: coreSize (0.5 to 3), diskColor (hex), distortion (0.1 to 5), intensity (0.5 to 3), rotationSpeed (0.1 to 2).
 
 Rules:
 1. Always respond with a VALID JSON object.

@@ -7,7 +7,9 @@ export const Sidebar = () => {
     const navItems: { id: GeneratorType; label: string; icon: React.ReactNode }[] = [
         { id: 'shapes', label: 'Shapes', icon: <Box size={18} /> },
         { id: 'planet', label: 'Planet', icon: <Globe size={18} /> },
+        { id: 'planet', label: 'Planet', icon: <Globe size={18} /> },
         { id: 'particles', label: 'Particles', icon: <Sparkles size={18} /> },
+        { id: 'void', label: 'Cosmic Void', icon: <Zap size={18} /> },
     ];
 
     return (

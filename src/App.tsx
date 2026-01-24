@@ -7,6 +7,7 @@ import { ProceduralPlanet } from './components/generators/ProceduralPlanet';
 import { ParticleField } from './components/generators/ParticleField';
 import { FluidSimulation } from './components/generators/FluidSimulation';
 import { NeuralNexus } from './components/generators/NeuralNexus';
+import CosmicVoid from './components/generators/CosmicVoid';
 import { CodePreview } from './components/layout/CodePreview';
 import LandingPage from './components/landing/LandingPage';
 import { Box, Globe, Sparkles, Cpu, Send, Bot, Sliders, Palette, RotateCw, Zap, Code2, Droplets, Share2 } from 'lucide-react';
@@ -24,6 +25,7 @@ function Sidebar() {
     { id: 'particles' as const, label: 'Particles', icon: <Sparkles size={18} /> },
     { id: 'fluid' as const, label: 'Fluid', icon: <Droplets size={18} /> },
     { id: 'neural' as const, label: 'Neural', icon: <Share2 size={18} /> },
+    { id: 'void' as const, label: 'Cosmic Void', icon: <Zap size={18} /> },
   ];
 
   return (
@@ -88,7 +90,8 @@ function Controls() {
     planetConfig, updatePlanetConfig,
     particleConfig, updateParticleConfig,
     fluidConfig, updateFluidConfig,
-    neuralConfig, updateNeuralConfig
+    neuralConfig, updateNeuralConfig,
+    voidConfig, updateVoidConfig
   } = useStore();
 
   const titles: Record<string, string> = {
@@ -96,7 +99,8 @@ function Controls() {
     planet: 'Planet Controls',
     particles: 'Particle Controls',
     fluid: 'Fluid Controls',
-    neural: 'Neural Controls'
+    neural: 'Neural Controls',
+    void: 'Cosmic Void Controls'
   };
 
   return (
@@ -378,8 +382,69 @@ function Controls() {
             </div>
           </>
         )}
+
+        {activeGenerator === 'void' && (
+          <>
+            <div className="control-group">
+              <div className="control-row">
+                <label>Core Size</label>
+                <span className="control-value">{voidConfig.coreSize.toFixed(1)}</span>
+              </div>
+              <input
+                type="range" min="0.5" max="3.0" step="0.1"
+                value={voidConfig.coreSize}
+                onChange={(e) => updateVoidConfig({ coreSize: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <div className="control-row">
+                <label>Distortion</label>
+                <span className="control-value">{voidConfig.distortion.toFixed(1)}</span>
+              </div>
+              <input
+                type="range" min="0.0" max="5.0" step="0.1"
+                value={voidConfig.distortion}
+                onChange={(e) => updateVoidConfig({ distortion: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <div className="control-row">
+                <label>Intensity</label>
+                <span className="control-value">{voidConfig.intensity.toFixed(1)}</span>
+              </div>
+              <input
+                type="range" min="0.5" max="5.0" step="0.1"
+                value={voidConfig.intensity}
+                onChange={(e) => updateVoidConfig({ intensity: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <div className="control-row">
+                <label>Rotation Speed</label>
+                <span className="control-value">{voidConfig.rotationSpeed.toFixed(1)}</span>
+              </div>
+              <input
+                type="range" min="0.0" max="2.0" step="0.1"
+                value={voidConfig.rotationSpeed}
+                onChange={(e) => updateVoidConfig({ rotationSpeed: parseFloat(e.target.value) })}
+              />
+            </div>
+
+            <div className="control-group">
+              <label>Disk Color</label>
+              <input
+                type="color"
+                value={voidConfig.diskColor}
+                onChange={(e) => updateVoidConfig({ diskColor: e.target.value })}
+              />
+            </div>
+          </>
+        )}
       </div>
-    </div>
+    </div >
   );
 }
 
@@ -529,6 +594,7 @@ function SceneContent() {
         {activeGenerator === 'planet' && <ProceduralPlanet />}
         {activeGenerator === 'particles' && <ParticleField />}
         {activeGenerator === 'neural' && <NeuralNexus />}
+        {activeGenerator === 'void' && <CosmicVoid />}
       </group>
 
       <OrbitControls makeDefault enableDamping dampingFactor={0.05} minDistance={3} maxDistance={20} />
@@ -546,7 +612,7 @@ function MainCanvas() {
 
   return (
     <Canvas
-      camera={{ position: [0, 0, 8], fov: 45 }}
+      camera={{ position: activeGenerator === 'void' ? [0, 0, 18] : [0, 0, 8], fov: 45 }}
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true }}
     >
