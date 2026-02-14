@@ -322,6 +322,33 @@ function Controls() {
               />
               <label htmlFor="shading">Enable Shading</label>
             </div>
+
+            <div className="control-group">
+              <label>Color Palette</label>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                {fluidConfig.colorPalette.map((color, index) => (
+                  <input
+                    key={index}
+                    type="color"
+                    value={color}
+                    onChange={(e) => {
+                      const newPalette = [...fluidConfig.colorPalette];
+                      newPalette[index] = e.target.value;
+                      updateFluidConfig({ colorPalette: newPalette });
+                    }}
+                    style={{
+                      width: '100%',
+                      height: '20px',
+                      padding: 0,
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      background: 'transparent'
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
           </>
         )}
 

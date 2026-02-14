@@ -441,7 +441,20 @@ export const FluidSimulation: React.FC = () => {
                     velocity.swap();
 
                     gl.uniform1i(uniforms.splat.uTarget, dye.read.attach(0));
-                    gl.uniform3f(uniforms.splat.color, pointer.color.r * 10, pointer.color.g * 10, pointer.color.b * 10);
+
+                    // Hex to RGB helper
+                    const hexToRgb = (hex: string) => {
+                        const r = parseInt(hex.slice(1, 3), 16) / 255;
+                        const g = parseInt(hex.slice(3, 5), 16) / 255;
+                        const b = parseInt(hex.slice(5, 7), 16) / 255;
+                        return { r, g, b };
+                    };
+
+                    // Color cycling logic
+                    const paletteIndex = Math.floor(Date.now() / 100) % currentConfig.colorPalette.length;
+                    const color = hexToRgb(currentConfig.colorPalette[paletteIndex]);
+
+                    gl.uniform3f(uniforms.splat.color, color.r, color.g, color.b);
                     blit(dye.write);
                     dye.swap();
                     pointer.moved = false;

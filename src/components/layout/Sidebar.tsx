@@ -1,5 +1,5 @@
 import { useStore, type GeneratorType } from '../../store/StoreContext';
-import { Box, Globe, Sparkles, Cpu, Zap } from 'lucide-react';
+import { Box, Globe, Sparkles, Cpu, Zap, Droplets, Share2 } from 'lucide-react';
 
 export const Sidebar = () => {
     const { activeGenerator, setActiveGenerator } = useStore();
@@ -7,9 +7,10 @@ export const Sidebar = () => {
     const navItems: { id: GeneratorType; label: string; icon: React.ReactNode }[] = [
         { id: 'shapes', label: 'Shapes', icon: <Box size={18} /> },
         { id: 'planet', label: 'Planet', icon: <Globe size={18} /> },
-        { id: 'planet', label: 'Planet', icon: <Globe size={18} /> },
         { id: 'particles', label: 'Particles', icon: <Sparkles size={18} /> },
-        { id: 'void', label: 'Cosmic Void', icon: <Zap size={18} /> },
+        { id: 'fluid' as const, label: 'Fluid', icon: <Droplets size={18} /> },
+        { id: 'neural' as const, label: 'Neural', icon: <Share2 size={18} /> },
+        { id: 'void' as const, label: 'Cosmic Void', icon: <Zap size={18} /> },
     ];
 
     return (

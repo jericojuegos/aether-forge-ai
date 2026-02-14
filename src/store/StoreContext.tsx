@@ -36,6 +36,7 @@ export interface FluidConfig {
     shading: boolean;
     colorSpeed: number;
     paused: boolean;
+    colorPalette: string[];
 }
 
 export interface NeuralConfig {
@@ -126,7 +127,8 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
         splatRadius: 0.25,
         shading: true,
         colorSpeed: 10,
-        paused: false
+        paused: false,
+        colorPalette: ['#e91e63', '#06b6d4', '#8b5cf6', '#10b981', '#f59e0b']
     });
 
     const [neuralConfig, setNeuralConfig] = useState<NeuralConfig>({
