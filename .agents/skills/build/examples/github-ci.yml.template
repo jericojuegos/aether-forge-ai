@@ -1,0 +1,100 @@
+# ==============================================================================
+# BFD GitHub Actions CI Gate (.github/workflows/ci.yml)
+#
+# Cost & Quota Optimized:
+#   - 100% Free & Unlimited on Public GitHub repositories.
+#   - Private Repo Quota Friendly: Triggers ONLY on Pull Requests to `main`/`master`,
+#     direct pushes to `main`/`master`, or manual `workflow_dispatch` (uses 0 minutes
+#     during feature branch WIP commits).
+#   - Concurrency Guard: Automatically cancels outdated runs on the same PR branch.
+#
+# Usage during `00-scaffold` (`/build` Step 2):
+#   Copy to `.github/workflows/ci.yml` and keep the job matching your project stack
+#   (unless `.github/workflows/` already exists or Stealth `-LocalExclude` is active).
+# ==============================================================================
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ----------------------------------------------------------------------------
+  # OPTION A — Next.js / TypeScript / Node (`nextjs-supabase`, `tangible-wp` JS)
+  # ----------------------------------------------------------------------------
+  verify:
+    name: Verify (Typecheck, Unit Tests & Build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript check
+        run: pnpm tsc --noEmit
+
+      - name: Run unit & invariant tests
+        run: pnpm test --run
+
+      - name: Production build check
+        run: pnpm build
+
+  # ----------------------------------------------------------------------------
+  # OPTION B — WordPress / PHP (`wp-modular-oop`, `tangible-wp` PHP)
+  # (Uncomment / replace `verify` job above for PHP/WordPress projects)
+  # ----------------------------------------------------------------------------
+  # verify-php:
+  #   name: Verify PHP Syntax & Unit Tests
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 5
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: '8.2'
+  #         coverage: none
+  #     - name: PHP Syntax Lint (php -l)
+  #       run: find . -path ./vendor -prune -o -path ./node_modules -prune -o -name "*.php" -print0 | xargs -0 -n1 php -l
+  #     - name: Run PHPUnit (if configured)
+  #       run: |
+  #         if [ -f "composer.json" ]; then composer install --no-interaction --prefer-dist; fi
+  #         if [ -f "vendor/bin/phpunit" ]; then vendor/bin/phpunit; fi
+
+  # ----------------------------------------------------------------------------
+  # OPTION C — Python / FastAPI (`python-fastapi` with `uv`)
+  # (Uncomment / replace `verify` job above for Python/FastAPI projects)
+  # ----------------------------------------------------------------------------
+  # verify-python:
+  #   name: Verify Ruff Lint & Pytest
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 5
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: astral-sh/setup-uv@v4
+  #     - name: Install dependencies & run checks
+  #       run: |
+  #         uv sync --frozen
+  #         uv run ruff check .
+  #         uv run pytest
